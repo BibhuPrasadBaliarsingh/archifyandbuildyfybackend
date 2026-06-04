@@ -7,7 +7,17 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+const cors = require('cors');
+
+app.use(
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'https://archifyandbuildify.netlify.app'
+    ],
+    credentials: true
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
