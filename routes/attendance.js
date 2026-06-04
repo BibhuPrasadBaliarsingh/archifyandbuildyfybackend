@@ -53,8 +53,15 @@ router.get('/', protectAdmin, async (req, res) => {
     const { employee, date, month } = req.query;
     const filter = {};
     if (employee) filter.employee = employee;
-    if (date) filter.date = date;
-    if (month) filter.date = { $regex: `^${month}` };
+    if (date) filter.date = new Date(date);
+    if (month) {
+      const [year, monthPart] = month.split('-').map(Number);
+      if (!Number.isNaN(year) && !Number.isNaN(monthPart) && monthPart >= 1 && monthPart <= 12) {
+        const start = new Date(year, monthPart - 1, 1);
+        const end = new Date(year, monthPart, 1);
+        filter.date = { $gte: start, $lt: end };
+      }
+    }
 
     const records = await Attendance.find(filter)
       .populate('employee', 'first_name last_name username')

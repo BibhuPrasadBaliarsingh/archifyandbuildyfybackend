@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const Client = require('../models/Client');
 const { protectAdmin } = require('../middleware/auth');
+const { sendExcel, formatDate } = require('../utils/export');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/quotations')),
@@ -17,6 +18,27 @@ router.get('/', protectAdmin, async (req, res) => {
     const clients = await Client.find().sort({ createdAt: -1 });
     res.json(clients);
   } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+router.get('/export', protectAdmin, async (req, res) => {
+  try {
+    const clients = await Client.find().sort({ createdAt: -1 });
+    const headers = ['ID', 'Full Name', 'Gender', 'Date of Registration', 'Contact Number', 'WhatsApp Number', 'Address', 'Services', 'Quotation URL'];
+    const rows = clients.map(client => [
+      client._id?.toString(),
+      client.fullname,
+      client.gender,
+      formatDate(client.dor),
+      client.contact_number,
+      client.whatsapp_number,
+      client.address,
+      (client.services || []).join(', '),
+      client.quotation ? `${req.protocol}://${req.get('host')}/uploads/quotations/${client.quotation}` : '',
+    ]);
+    sendExcel(res, 'clients.xls', headers, rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // GET single client

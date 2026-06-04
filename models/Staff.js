@@ -2,10 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const staffSchema = new mongoose.Schema({
-  fullname:    { type: String, required: true },
-  username:    { type: String, required: true, unique: true },
+  userId:      { type: Number, index: true },
+  fullname:    { type: String, required: true, trim: true },
+  username:    { type: String, required: true, unique: true, trim: true },
   password:    { type: String, required: true },
-  email:       { type: String, required: true },
+  email:       { type: String, required: true, trim: true },
   address:     { type: String },
   designation: { type: String },
   gender:      { type: String, enum: ['Male', 'Female', 'Other'] },
