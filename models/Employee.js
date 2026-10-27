@@ -31,6 +31,6 @@ employeeSchema.methods.matchPassword = function (plain) {
   return bcrypt.compare(plain, this.password);
 };
 
-employeeSchema.index({ employee_id: 1 });
+// employeeSchema.index({ employee_id: 1 });
 
 module.exports = mongoose.model('Employee', employeeSchema);
