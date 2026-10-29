@@ -30,7 +30,10 @@ router.get('/summary', protectAdmin, async (req, res) => {
       Staff.countDocuments(),
       Employee.countDocuments(),
       Invoice.find({}, 'total amountPaid type'),
-      Client.aggregate([{ $unwind: '$services' }, { $group: { _id: '$services', count: { $sum: 1 } } }]),
+      Client.aggregate([
+        { $unwind: { path: '$services', preserveNullAndEmptyArrays: true } },
+        { $group: { _id: { $ifNull: ['$services', 'Other'] }, count: { $sum: 1 } } },
+      ]),
       Client.aggregate([{ $group: { _id: '$gender', count: { $sum: 1 } } }]),
       Lead.aggregate([{ $group: { _id: '$lead_status', count: { $sum: 1 } } }]),
       Project.aggregate([{ $group: { _id: '$overallStatus', count: { $sum: 1 } } }]),
