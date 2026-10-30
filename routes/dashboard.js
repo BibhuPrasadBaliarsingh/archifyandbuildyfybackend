@@ -33,6 +33,13 @@ router.get('/summary', protectAdmin, async (req, res) => {
       Client.aggregate([
         { $unwind: { path: '$services', preserveNullAndEmptyArrays: true } },
         { $group: { _id: { $ifNull: ['$services', 'Other'] }, count: { $sum: 1 } } },
+        {
+          $addFields: {
+            isOther: { $cond: [{ $eq: ['$_id', 'Other'] }, 1, 0] },
+          },
+        },
+        { $sort: { isOther: 1, count: -1 } },
+        { $project: { isOther: 0 } },
       ]),
       Client.aggregate([{ $group: { _id: '$gender', count: { $sum: 1 } } }]),
       Lead.aggregate([{ $group: { _id: '$lead_status', count: { $sum: 1 } } }]),
